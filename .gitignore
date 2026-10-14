@@ -1,0 +1,9 @@
+*.jou
+*.log
+*.str
+.Xil/
+*.dcp
+*.bit
+*.wdb
+xsim.dir/
+.DS_Store

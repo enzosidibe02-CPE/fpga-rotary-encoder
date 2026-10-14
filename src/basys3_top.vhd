@@ -1,3 +1,8 @@
+----------------------------------------------------------------------------------
+-- Wrapper: basys3_top
+-- Maps Basys3 board I/O to rotary_encoder_core with debouncing
+-- Course: CPE 3020 — VHDL Design with FPGAs | KSU Fall 2025
+----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -5,7 +10,7 @@ use ieee.numeric_std.all;
 entity basys3_top is
     port(
         clk  : in  std_logic;
-        btnC : in  std_logic;                       -- center button as reset
+        btnC : in  std_logic;                       -- center button as active-high reset
         JA   : in  std_logic_vector(3 downto 0);    -- PmodENC on JA1..JA4
         led  : out std_logic_vector(15 downto 0);
         seg  : out std_logic_vector(6 downto 0);
@@ -48,38 +53,24 @@ architecture basys3_top_ARCH of basys3_top is
     end component;
 
 begin
-    -- btnC is active-high, make active-low reset
+
+    -- btnC is active-high → make active-low reset
     resetN <= not btnC;
 
-    -- Debounce encoder button (JA(2)) - slower (~2 ms)
+    -- Debounce encoder button (JA(2)) - slower ~2 ms
     debBtn : debounce
         generic map(COUNT_MAX => 200000)
-        port map(
-            clk    => clk,
-            resetN => resetN,
-            noisy  => JA(2),
-            clean  => btnClean
-        );
+        port map(clk => clk, resetN => resetN, noisy => JA(2), clean => btnClean);
 
-    -- Debounce encoder A (JA(0)) - faster (~50 us)
+    -- Debounce encoder A (JA(0)) - faster ~50 us
     debA : debounce
         generic map(COUNT_MAX => 5000)
-        port map(
-            clk    => clk,
-            resetN => resetN,
-            noisy  => JA(0),
-            clean  => aClean
-        );
+        port map(clk => clk, resetN => resetN, noisy => JA(0), clean => aClean);
 
-    -- Debounce encoder B (JA(1)) - faster (~50 us)
+    -- Debounce encoder B (JA(1)) - faster ~50 us
     debB : debounce
         generic map(COUNT_MAX => 5000)
-        port map(
-            clk    => clk,
-            resetN => resetN,
-            noisy  => JA(1),
-            clean  => bClean
-        );
+        port map(clk => clk, resetN => resetN, noisy => JA(1), clean => bClean);
 
     basys3 : rotary_encoder_core
         port map(

@@ -1,12 +1,13 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Enzo Sidibe
--- Project: Rotary encoder with the Basys3 board.
---   Turning the encoder moves a single LED left or right on the 16-LED bar, one
---   step per click. The seven-segment display shows either the shaft angle or the
---   rpm, and pressing the encoder button switches between these two modes.
---   Active mode is indicated by changing the LED pattern (one LED for rpm,
---   all-but-one for angle) and by using the decimal points on the seven-segment
---   display.
+-- Project: For my project, I'm using a rotary encoder with the Basys3 board.
+-- Turning the encoder moves a single LED left or right on the 16-LED bar, one step per click.
+-- The seven-segment display shows either the shaft angle or the rpm, and pressing the
+-- encoder button switches between these two modes.
+-- I indicate the active mode by changing the LED pattern (one LED for rpm, all-but-one for
+-- angle) and by using the decimal points on the seven-segment display.
+-- Course: CPE 3020 — VHDL Design with FPGAs
+-- Professor: Scott Tippens | Kennesaw State University | Fall 2025
 ----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -27,31 +28,32 @@ entity rotary_encoder_core is
 end entity;
 
 architecture rotary_encoder_core_ARCH of rotary_encoder_core is
+
     --===============================================================
     -- SevenSegmentDriver component
     --===============================================================
     component SevenSegmentDriver is
         port(
-            reset     : in  std_logic;
-            clock     : in  std_logic;
-            digit3    : in  std_logic_vector(3 downto 0);
-            digit2    : in  std_logic_vector(3 downto 0);
-            digit1    : in  std_logic_vector(3 downto 0);
-            digit0    : in  std_logic_vector(3 downto 0);
-            blank3    : in  std_logic;
-            blank2    : in  std_logic;
-            blank1    : in  std_logic;
-            blank0    : in  std_logic;
+            reset    : in  std_logic;
+            clock    : in  std_logic;
+            digit3   : in  std_logic_vector(3 downto 0);
+            digit2   : in  std_logic_vector(3 downto 0);
+            digit1   : in  std_logic_vector(3 downto 0);
+            digit0   : in  std_logic_vector(3 downto 0);
+            blank3   : in  std_logic;
+            blank2   : in  std_logic;
+            blank1   : in  std_logic;
+            blank0   : in  std_logic;
             sevenSegs : out std_logic_vector(6 downto 0);
-            anodes    : out std_logic_vector(3 downto 0)
+            anodes   : out std_logic_vector(3 downto 0)
         );
     end component;
 
     --===============================================================
     -- Synchronizers
     --===============================================================
-    signal encAMeta, encASync     : std_logic;
-    signal encBMeta, encBSync     : std_logic;
+    signal encAMeta,   encASync   : std_logic;
+    signal encBMeta,   encBSync   : std_logic;
     signal encBtnMeta, encBtnSync : std_logic;
 
     --===============================================================
@@ -64,26 +66,27 @@ architecture rotary_encoder_core_ARCH of rotary_encoder_core is
     --===============================================================
     -- Position, RPM, Angle
     --===============================================================
-    signal pos       : unsigned(3 downto 0) := (others => '0');
-    signal ledPosVec : std_logic_vector(15 downto 0);
-    signal btnPrev   : std_logic;
-    signal modeRpm   : std_logic;
-    signal timeCnt   : integer range 0 to 50000000;
-    signal tickCnt   : integer range 0 to 10000;
-    signal rpmVal    : integer range 0 to 9999;
-    signal angleVal  : integer range 0 to 9999;
-    signal dispValue : integer range 0 to 9999;
+    signal pos        : unsigned(3 downto 0) := (others => '0');
+    signal ledPosVec  : std_logic_vector(15 downto 0);
+    signal btnPrev    : std_logic;
+    signal modeRpm    : std_logic;
+    signal timeCnt    : integer range 0 to 50000000;
+    signal tickCnt    : integer range 0 to 10000;
+    signal rpmVal     : integer range 0 to 9999;
+    signal angleVal   : integer range 0 to 9999;
+    signal dispValue  : integer range 0 to 9999;
 
     --===============================================================
     -- BCD digits
     --===============================================================
-    signal d0, d1, d2, d3             : integer range 0 to 9;
-    signal dig0, dig1, dig2, dig3     : std_logic_vector(3 downto 0);
+    signal d0, d1, d2, d3       : integer range 0 to 9;
+    signal dig0, dig1, dig2, dig3 : std_logic_vector(3 downto 0);
     signal blank0, blank1, blank2, blank3 : std_logic;
     signal resetSeven : std_logic;
     signal anInt      : std_logic_vector(3 downto 0);
 
 begin
+
     resetSeven <= not resetN;
 
     --===============================================================
@@ -93,19 +96,13 @@ begin
     begin
         if rising_edge(clk) then
             if resetN = '0' then
-                encAMeta   <= '0';
-                encASync   <= '0';
-                encBMeta   <= '0';
-                encBSync   <= '0';
-                encBtnMeta <= '0';
-                encBtnSync <= '0';
+                encAMeta   <= '0'; encASync   <= '0';
+                encBMeta   <= '0'; encBSync   <= '0';
+                encBtnMeta <= '0'; encBtnSync <= '0';
             else
-                encAMeta   <= encA;
-                encASync   <= encAMeta;
-                encBMeta   <= encB;
-                encBSync   <= encBMeta;
-                encBtnMeta <= encBtn;
-                encBtnSync <= encBtnMeta;
+                encAMeta   <= encA;    encASync   <= encAMeta;
+                encBMeta   <= encB;    encBSync   <= encBMeta;
+                encBtnMeta <= encBtn;  encBtnSync <= encBtnMeta;
             end if;
         end if;
     end process;
@@ -125,7 +122,7 @@ begin
                 stepCcw <= '0';
                 if (aPrev = '0') and (encASync = '1') then
                     if encBSync = '0' then
-                        stepCw <= '1';
+                        stepCw  <= '1';
                     else
                         stepCcw <= '1';
                     end if;
@@ -208,7 +205,7 @@ begin
         variable v : integer;
     begin
         v := dispValue;
-        if v < 0 then v := 0;
+        if    v < 0    then v := 0;
         elsif v > 9999 then v := 9999; end if;
         d0 <= v mod 10; v := v / 10;
         d1 <= v mod 10; v := v / 10;
@@ -221,13 +218,10 @@ begin
     dig2 <= std_logic_vector(to_unsigned(d2, 4));
     dig3 <= std_logic_vector(to_unsigned(d3, 4));
 
-    blank0 <= '0';
-    blank1 <= '0';
-    blank2 <= '0';
-    blank3 <= '0';
+    blank0 <= '0'; blank1 <= '0'; blank2 <= '0'; blank3 <= '0';
 
     --===============================================================
-    -- LED one-hot
+    -- LED one-hot / inverse
     --===============================================================
     ledPosProc : process(pos)
         variable tmp : std_logic_vector(15 downto 0);
@@ -239,8 +233,7 @@ begin
         ledPosVec <= tmp;
     end process;
 
-    leds <= ledPosVec when modeRpm = '1'
-            else not ledPosVec;
+    leds <= ledPosVec when modeRpm = '1' else not ledPosVec;
 
     --===============================================================
     -- 7-seg instantiation
@@ -249,14 +242,10 @@ begin
         port map(
             reset     => resetSeven,
             clock     => clk,
-            digit3    => dig3,
-            digit2    => dig2,
-            digit1    => dig1,
-            digit0    => dig0,
-            blank3    => blank3,
-            blank2    => blank2,
-            blank1    => blank1,
-            blank0    => blank0,
+            digit3    => dig3, digit2 => dig2,
+            digit1    => dig1, digit0 => dig0,
+            blank3    => blank3, blank2 => blank2,
+            blank1    => blank1, blank0 => blank0,
             sevenSegs => seg,
             anodes    => anInt
         );
@@ -270,9 +259,9 @@ begin
     begin
         dp <= '1';
         if modeRpm = '1' then
-            if anInt = "0111" then dp <= '0'; end if;
+            if anInt = "0111" then dp <= '0'; end if;   -- far left DP = RPM mode
         else
-            if anInt = "1110" then dp <= '0'; end if;
+            if anInt = "1110" then dp <= '0'; end if;   -- far right DP = angle mode
         end if;
     end process;
 
