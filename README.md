@@ -89,10 +89,6 @@ Vivado (the Fall 2025 project was built and simulated with it), Digilent Basys-3
 
 Author's own VHDL for the core, wrapper and testbench, matching the graded Fall 2025 report; comment headers were reformatted for this repository. `debounce` and `SevenSegmentDriver` were provided by the course (CPE 3020, Prof. Scott Tippens) and are not the author's work. The author's contribution is the wrapper, the core logic (synchronizers, quadrature decoder, position/RPM/mode logic, BCD conversion, LED and decimal-point control) and the testbench, plus choosing the debounce time constants (`COUNT_MAX`).
 
-## Preparation note
-
-The VHDL (`src/`, `sim/`) and the two diagrams are the author's own coursework. This README and the analysis in it were produced during portfolio preparation with AI assistance (Claude).
-
 ## License
 
 MIT for the author's files (`LICENSE`).
